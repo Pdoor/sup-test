@@ -4,78 +4,1443 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<title>SUP · Test Stream</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400&family=Bebas+Neue&display=swap" rel="stylesheet">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>MeteoSUP · Torre Pedrera</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400&family=Bebas+Neue&family=Barlow+Condensed:wght@600;700&display=swap" rel="stylesheet">
 <style>
-:root{--deep:#060e1c;--border:rgba(255,255,255,0.08);--accent:#00d4ff;--warn:#ff4757;--text:#e8f4ff;--muted:rgba(232,244,255,0.4);--mono:'DM Mono',monospace;--display:'Bebas Neue',sans-serif}
-*{margin:0;padding:0;box-sizing:border-box}
-html,body{background:var(--deep);color:var(--text);min-height:100vh;overflow-x:hidden}
-body::before{content:'';position:fixed;inset:0;z-index:0;background:radial-gradient(ellipse 80% 60% at 20% 80%,rgba(0,133,255,.12),transparent 60%),radial-gradient(ellipse 60% 40% at 80% 20%,rgba(0,212,255,.08),transparent 50%)}
-#app{position:relative;z-index:1;max-width:430px;margin:0 auto;padding:env(safe-area-inset-top,20px) 0 40px}
-header{padding:20px 24px 16px;display:flex;align-items:flex-start;justify-content:space-between}
-.logo h1{font-family:var(--display);font-size:52px;letter-spacing:3px;line-height:1;background:linear-gradient(135deg,#fff,var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.logo .sub{font-family:var(--mono);font-size:9px;letter-spacing:4px;color:var(--muted);text-transform:uppercase;margin-top:2px}
-.htag{font-family:var(--mono);font-size:9px;color:var(--warn);text-transform:uppercase;background:rgba(255,71,87,.1);border:1px solid rgba(255,71,87,.3);padding:4px 10px;border-radius:20px;margin-top:10px}
-.intro{margin:0 24px 24px;padding:14px 16px;background:rgba(0,212,255,.04);border:1px solid rgba(0,212,255,.14);border-radius:16px;font-family:var(--mono);font-size:9px;color:var(--muted);line-height:1.8}
-.intro strong{color:var(--accent);letter-spacing:3px;display:block;margin-bottom:4px}
-.strategy{margin:0 24px 24px}
-.s-header{display:flex;align-items:center;gap:14px;margin-bottom:12px}
-.s-num{font-family:var(--display);font-size:56px;color:rgba(255,255,255,.1);flex-shrink:0;width:54px;line-height:1}
-.s-info{flex:1}
-.s-name{font-family:var(--display);font-size:24px;letter-spacing:2px;line-height:1}
-.s-desc{font-family:var(--mono);font-size:8px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-top:4px}
-.s-badge{font-family:var(--mono);font-size:7px;letter-spacing:2px;padding:3px 9px;border-radius:20px;text-transform:uppercase;flex-shrink:0}
-.b1{color:#ff6b81;background:rgba(255,107,129,.1);border:1px solid rgba(255,107,129,.25)}
-.vbox{position:relative;border-radius:18px;overflow:hidden;border:1px solid var(--border);background:#000;aspect-ratio:16/9}
-.vbox iframe{width:100%;height:100%;border:none;display:block}
-.vlabel{position:absolute;top:10px;left:10px;z-index:3;font-family:var(--mono);font-size:7px;letter-spacing:2px;color:rgba(255,255,255,.65);background:rgba(0,0,0,.55);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);padding:4px 10px;border-radius:20px;text-transform:uppercase;pointer-events:none}
-.s-url{margin-top:8px;padding:9px 12px;background:rgba(255,255,255,.025);border:1px solid var(--border);border-radius:10px;font-family:var(--mono);font-size:7px;color:var(--muted);word-break:break-all;line-height:1.8}
-.k{color:rgba(0,212,255,.6)}
-.divider{margin:0 24px 24px;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.07),transparent)}
-footer{text-align:center;padding:0 24px;font-family:var(--mono);font-size:8px;letter-spacing:3px;color:rgba(255,255,255,.15);text-transform:uppercase}
+/* ═══════════════════════════════════════════════════════
+   DESIGN SYSTEM — SUP PREMIUM
+   Palette:  #070912 base · #0d1526 surface · #131e30 card
+   Accent:   #00c8f0 (ciano adriatico)
+   Signal:   #f0566a (vento da terra)
+   Chrome:   rgba(255,255,255,.055) border
+   ═══════════════════════════════════════════════════════ */
+
+:root {
+  --bg:        #070912;
+  --surface:   #0c1422;
+  --card:      rgba(14,22,40,.72);
+  --card-hi:   rgba(18,28,50,.80);
+  --border:    rgba(255,255,255,.055);
+  --border-hi: rgba(255,255,255,.10);
+  --accent:    #00c8f0;
+  --accent-dim:rgba(0,200,240,.12);
+  --accent-glow:rgba(0,200,240,.22);
+  --warn:      #f0566a;
+  --warn-dim:  rgba(240,86,106,.10);
+  --warn-glow: rgba(240,86,106,.20);
+  --text:      #e6f0ff;
+  --text-2:    rgba(220,235,255,.55);
+  --text-3:    rgba(220,235,255,.28);
+  --mono:      'DM Mono', monospace;
+  --disp:      'Bebas Neue', sans-serif;
+  --r-card:    22px;
+  --r-pill:    100px;
+  --r-widget:  16px;
+  --r-chip:    10px;
+}
+
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+html, body {
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ── Ambient light layers ───────────────────────────── */
+body::before {
+  content: '';
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background:
+    radial-gradient(ellipse 70% 55% at 15% 85%, rgba(0,120,255,.09), transparent 55%),
+    radial-gradient(ellipse 55% 40% at 85% 10%, rgba(0,200,240,.07), transparent 50%),
+    radial-gradient(ellipse 40% 30% at 50% 50%, rgba(0,80,180,.04), transparent 60%),
+    radial-gradient(ellipse 50% 25% at 60% 72%, rgba(0,180,100,.05), transparent 50%);
+}
+
+/* ── App shell ──────────────────────────────────────── */
+#app {
+  position: relative; z-index: 1;
+  max-width: 430px; margin: 0 auto;
+  padding: env(safe-area-inset-top, 16px) 0 36px;
+}
+
+/* ── Staggered entry animation ──────────────────────── */
+@keyframes rise {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+header        { animation: rise .55s cubic-bezier(.22,1,.36,1) both; }
+.status-bar   { animation: rise .55s cubic-bezier(.22,1,.36,1) .08s both; }
+.wind-card    { animation: rise .55s cubic-bezier(.22,1,.36,1) .16s both; }
+.wave-card    { animation: rise .55s cubic-bezier(.22,1,.36,1) .24s both; }
+.webcam-section{ animation: rise .55s cubic-bezier(.22,1,.36,1) .32s both; }
+
+/* ═══════════════════════════════════════════════════════
+   HEADER
+   ═══════════════════════════════════════════════════════ */
+header {
+  padding: 10px 18px 6px;
+  display: flex; align-items: flex-end; justify-content: space-between;
+}
+
+.logo {
+  display: flex; flex-direction: column;
+  justify-content: space-between;
+}
+
+.logo-spacer {
+  flex: 1;
+}
+
+.logo h1 {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700;
+  font-size: 34px; letter-spacing: 1px; line-height: 1;
+}
+
+/* "Meteo" — oro antico, caldo, autorevole */
+.h1-meteo {
+  background: linear-gradient(160deg, #e8c97a 0%, #c8a450 45%, #a07830 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+  filter:
+    drop-shadow(0 1px 0 rgba(255,220,140,.50))
+    drop-shadow(0 2px 0 rgba(40,18,0,.92))
+    drop-shadow(0 4px 12px rgba(180,120,20,.22))
+    drop-shadow(0 10px 24px rgba(0,0,0,.48));
+  letter-spacing: 1px;
+}
+
+/* "SUP" — bianco crema dominante, massima luminosità */
+.h1-sup {
+  background: linear-gradient(160deg, #ffffff 0%, #f5efe0 50%, #ddd0b8 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+  filter:
+    drop-shadow(0 1px 0 rgba(255,255,240,.60))
+    drop-shadow(0 2px 0 rgba(20,10,0,.95))
+    drop-shadow(0 3px 0 rgba(10,5,0,.70))
+    drop-shadow(0 6px 16px rgba(200,160,80,.18))
+    drop-shadow(0 12px 28px rgba(0,0,0,.50));
+  letter-spacing: 3px;
+}
+
+
+.logo .sub {
+  font-family: var(--mono);
+  font-size: 8px; letter-spacing: 4px;
+  margin-top: auto;
+  background: linear-gradient(160deg, #d4a84b 0%, #b8882e 55%, #8c6420 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+  display: inline-block;
+  filter:
+    drop-shadow(0 1px 0 rgba(240,190,80,.30))
+    drop-shadow(0 2px 4px rgba(30,12,0,.75))
+    drop-shadow(0 4px 10px rgba(0,0,0,.35));
+}
+
+.header-right {
+  text-align: right;
+  display: flex; flex-direction: column; align-items: flex-end; justify-content: flex-end;
+}
+
+.time-display {
+  font-family: var(--disp);
+  font-size: 22px; letter-spacing: 2px; line-height: 1;
+  color: var(--text);
+  /* 3D text shadow: stessa logica — highlight + spessore + glow */
+  text-shadow:
+    0 1px 0 rgba(255,255,255,.16),
+    0 2px 0 rgba(0,0,0,.75),
+    0 4px 10px rgba(0,0,0,.40),
+    0 8px 24px rgba(0,200,240,.10);
+}
+
+.date-display {
+  font-family: var(--mono);
+  font-size: 7px; letter-spacing: 2.5px;
+  color: var(--text-3);
+  text-transform: uppercase; margin-top: 3px;
+}
+
+/* ═══════════════════════════════════════════════════════
+   STATUS BAR
+   ═══════════════════════════════════════════════════════ */
+.status-bar {
+  margin: 2px 14px 8px;
+  padding: 5px 12px 5px 14px;
+  background: rgba(255,255,255,.028);
+  border: 1px solid rgba(255,255,255,.06);
+  border-top: 1px solid rgba(255,255,255,.18);
+  border-bottom: 1px solid rgba(0,0,0,.60);
+  border-radius: var(--r-pill);
+  display: flex; align-items: center; gap: 10px;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: var(--shadow-pill);
+}
+
+.status-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: #1fffa0; flex-shrink: 0;
+  box-shadow: 0 0 8px rgba(31,255,160,.5);
+  animation: blink 2.4s ease-in-out infinite;
+}
+
+@keyframes blink {
+  0%,100% { opacity: 1; box-shadow: 0 0 8px rgba(31,255,160,.5); }
+  50%      { opacity: .35; box-shadow: 0 0 3px rgba(31,255,160,.2); }
+}
+
+.status-dot.error {
+  background: #f0566a;
+  box-shadow: 0 0 8px rgba(240,86,106,.55);
+  animation: blinkError 1.2s ease-in-out infinite;
+}
+@keyframes blinkError {
+  0%,100% { opacity: 1; box-shadow: 0 0 8px rgba(240,86,106,.55); }
+  50%      { opacity: .4; box-shadow: 0 0 3px rgba(240,86,106,.2); }
+}
+
+.status-text {
+  font-family: var(--mono);
+  font-size: 8.5px; letter-spacing: 3px;
+  color: rgba(220,235,255,.62); text-transform: uppercase; flex: 1;
+}
+
+.status-refresh {
+  width: 26px; height: 26px; border-radius: 50%; border: none;
+  background: rgba(255,255,255,.04);
+  color: var(--text-3); cursor: pointer; font-size: 14px;
+  display: flex; align-items: center; justify-content: center;
+  transition: background .2s, color .2s, transform .15s;
+}
+.status-refresh:hover  { background: rgba(255,255,255,.08); color: var(--text); }
+.status-refresh:active { transform: scale(.9); }
+.spin { animation: rotateSpin .65s cubic-bezier(.4,0,.2,1); }
+@keyframes rotateSpin { to { transform: rotate(360deg); } }
+
+/* ── Loading pulse ──────────────────────────────────── */
+@keyframes loadPulse {
+  0%,100% { opacity: 1; }
+  50%      { opacity: .28; }
+}
+.loading {
+  animation: loadPulse 1.1s ease-in-out infinite;
+  pointer-events: none;
+}
+
+/* ═══════════════════════════════════════════════════════
+   SHADOW TOKEN — 3D depth system, percettibile su dark bg
+   La chiave: highlight inset in cima (luce zenitale) +
+   bordo-spessore scuro in basso + drop shadow profonda
+   ═══════════════════════════════════════════════════════ */
+:root {
+  --shadow-card:
+    0 1px 0 rgba(255,255,255,.18) inset,
+    0 -1px 0 rgba(0,0,0,.80) inset,
+    0 1px 0 rgba(255,255,255,.10),
+    0 4px 8px rgba(0,0,0,.50),
+    0 14px 32px rgba(0,0,0,.42),
+    0 40px 72px rgba(0,0,0,.32);
+
+  --shadow-widget:
+    0 1px 0 rgba(255,255,255,.18) inset,
+    0 -1px 0 rgba(0,0,0,.75) inset,
+    0 1px 0 rgba(255,255,255,.08),
+    0 3px 7px rgba(0,0,0,.44),
+    0 10px 24px rgba(0,0,0,.36),
+    0 22px 44px rgba(0,0,0,.24);
+
+  --shadow-chip:
+    0 1px 0 rgba(255,255,255,.14) inset,
+    0 -1px 0 rgba(0,0,0,.70) inset,
+    0 2px 5px rgba(0,0,0,.42),
+    0 7px 16px rgba(0,0,0,.32),
+    0 14px 26px rgba(0,0,0,.20);
+
+  --shadow-pill:
+    0 1px 0 rgba(255,255,255,.16) inset,
+    0 -1px 0 rgba(0,0,0,.65) inset,
+    0 2px 6px rgba(0,0,0,.40),
+    0 9px 22px rgba(0,0,0,.30),
+    0 20px 38px rgba(0,0,0,.20);
+
+  --shadow-video:
+    0 1px 0 rgba(255,255,255,.10) inset,
+    0 -2px 0 rgba(0,0,0,.90) inset,
+    0 5px 12px rgba(0,0,0,.55),
+    0 20px 48px rgba(0,0,0,.52),
+    0 44px 80px rgba(0,0,0,.38);
+
+  --shadow-compass:
+    0 1px 0 rgba(255,255,255,.18) inset,
+    0 -1px 0 rgba(0,0,0,.75) inset,
+    0 4px 10px rgba(0,0,0,.48),
+    0 12px 28px rgba(0,0,0,.36),
+    0 24px 48px rgba(0,0,0,.24);
+}
+
+/* ═══════════════════════════════════════════════════════
+   CARD BASE — shared surface token
+   ═══════════════════════════════════════════════════════ */
+.wind-card,
+.wave-card {
+  margin: 0 14px 5px;
+  border: 1px solid rgba(255,255,255,.07);
+  border-top: 1px solid rgba(255,255,255,.22);
+  border-bottom: 1px solid rgba(0,0,0,.75);
+  border-radius: var(--r-card);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  box-shadow: var(--shadow-card);
+}
+
+.wind-card {
+  background: rgba(16,26,46,.82);
+}
+
+/* ── Wave card — deep ocean green ──────────────────── */
+.wave-card {
+  background: linear-gradient(145deg,
+    rgba(4,32,24,.92) 0%,
+    rgba(6,40,30,.88) 40%,
+    rgba(8,26,20,.90) 100%);
+  border-top: 1px solid rgba(0,210,120,.20);
+  border-bottom: 1px solid rgba(0,0,0,.80);
+  box-shadow:
+    0 1px 0 rgba(0,210,120,.14) inset,
+    0 -1px 0 rgba(0,0,0,.80) inset,
+    0 1px 0 rgba(0,210,120,.08),
+    0 4px 8px rgba(0,0,0,.50),
+    0 14px 32px rgba(0,0,0,.42),
+    0 40px 72px rgba(0,0,0,.32);
+}
+
+.wind-card { padding: 10px 14px 10px; }
+.wave-card { padding: 9px 14px 9px; display: flex; flex-direction: column; gap: 6px; }
+
+.wave-card-label {
+  font-family: var(--mono);
+  font-size: 8px; letter-spacing: 4px;
+  color: rgba(0,210,120,.70); text-transform: uppercase;
+}
+
+.wave-card-inner {
+  display: flex; align-items: center; gap: 10px;
+}
+
+/* ── Section label ─────────────────────────────────── */
+.card-label {
+  font-family: var(--mono);
+  font-size: 8px; letter-spacing: 4px;
+  color: rgba(220,235,255,.62); text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.card-label-row {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 8px;
+}
+.card-label-row .card-label { margin-bottom: 0; }
+.card-label-row .card-label:last-child {
+  width: 155px; text-align: center; flex-shrink: 0;
+}
+
+/* ═══════════════════════════════════════════════════════
+   WIND MAIN — colonna sinistra + wx a destra full-height
+   ═══════════════════════════════════════════════════════ */
+.wind-main {
+  display: flex; flex-direction: row; gap: 8px;
+  align-items: stretch;
+  margin-bottom: 10px;
+}
+
+/* Colonna sinistra: compass/dir sopra, speed sotto */
+.wind-left-col {
+  display: flex; flex-direction: column; gap: 10px;
+  flex: 1; min-width: 0;
+}
+
+.wind-top-row {
+  display: flex; align-items: center; gap: 10px;
+}
+
+.wind-widgets-row {
+  display: flex; gap: 8px;
+}
+
+.wind-widgets-row .spd-widget {
+  flex: 0.8;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 10px;
+  padding: 9px 12px;
+  min-width: 0;
+}
+
+.wind-widgets-row .spd-icon {
+  font-size: 18px; flex-shrink: 0;
+}
+
+.wind-widgets-row .spd-val {
+  font-size: 24px;
+}
+
+.wind-widgets-row .spd-unit {
+  font-size: 6.5px; letter-spacing: 1.5px;
+  text-align: left;
+  margin-left: auto;
+  padding-left: 4px;
+}
+
+/* wx meteo: colonna destra, stessa altezza totale */
+.wx-side {
+  flex-shrink: 0;
+  width: 155px;
+  align-self: stretch;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 8px 10px !important;
+}
+
+.wx-current-row {
+  display: flex; align-items: baseline; gap: 5px;
+}
+
+.wx-side .wx-icon { font-size: 18px; line-height: 1; }
+.wx-side .wx-icon img { width: 26px; height: 26px; display: block; }
+.wx-side .wx-temp { font-size: 22px; letter-spacing: 1px; }
+
+.wx-sep {
+  width: 80%; height: 1px;
+  background: rgba(0,200,240,.12);
+  margin: 2px 0;
+}
+
+.wx-forecast {
+  display: flex; gap: 6px; align-items: flex-end;
+  justify-content: center;
+}
+
+.wx-fi {
+  display: flex; flex-direction: column; align-items: center; gap: 1px;
+}
+
+.wx-fi-h {
+  font-family: var(--mono);
+  font-size: 5.5px; letter-spacing: .5px;
+  color: rgba(220,235,255,.38); text-transform: uppercase;
+}
+
+.wx-fi-i { font-size: 16px; line-height: 1.2; display: block; }
+.wx-fi-i img { width: 18px; height: 18px; display: block; }
+
+/* ── Compass ────────────────────────────────────────── */
+.compass {
+  flex-shrink: 0; width: 68px; height: 68px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 50% 40%, rgba(255,255,255,.04), rgba(0,0,0,.5));
+  border: 1px solid rgba(255,255,255,.07);
+  border-top: 1px solid rgba(255,255,255,.24);
+  border-bottom: 1px solid rgba(0,0,0,.72);
+  position: relative;
+  box-shadow: var(--shadow-compass);
+}
+
+/* Cardinal marks */
+.compass::before,
+.compass::after {
+  content: '';
+  position: absolute; border-radius: 1px;
+  background: rgba(255,255,255,.08);
+}
+.compass::before { /* vertical tick */
+  width: 1px; height: 8px;
+  top: 8px; left: 50%; transform: translateX(-50%);
+}
+.compass::after { /* horizontal tick — rotated via pseudo-trick not possible, skip */
+  width: 1px; height: 8px;
+  bottom: 8px; left: 50%; transform: translateX(-50%);
+}
+
+.c-n {
+  position: absolute; top: 5px; left: 50%; transform: translateX(-50%);
+  font-family: var(--mono); font-size: 8px; letter-spacing: 1px;
+  color: var(--accent); opacity: .7;
+}
+
+.c-needle {
+  position: absolute; top: 50%; left: 50%;
+  width: 0; height: 0;
+  transform-origin: center center;
+  /* la rotazione JS ruota attorno al centro del nodo */
+  transition: transform 1.1s cubic-bezier(.34,1.56,.64,1);
+}
+
+/* Freccia DA (rossa, punta verso alto = origine vento) */
+.c-needle::before {
+  content: '';
+  position: absolute;
+  left: -5px; bottom: 2px;
+  width: 0; height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-bottom: 22px solid #f0566a;
+  filter: drop-shadow(0 0 6px rgba(240,86,106,.6));
+}
+
+/* Freccia VA (bianca, punta verso basso = destinazione vento) */
+.c-needle::after {
+  content: '';
+  position: absolute;
+  left: -4px; top: 2px;
+  width: 0; height: 0;
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  border-top: 20px solid rgba(255,255,255,.75);
+  filter: drop-shadow(0 0 4px rgba(255,255,255,.35));
+}
+
+.c-tip  { display: none; }
+.c-tail { display: none; }
+
+.c-dot {
+  position: absolute; top: 50%; left: 50%;
+  width: 6px; height: 6px; border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 0 6px rgba(255,255,255,.5);
+  transform: translate(-50%,-50%);
+  z-index: 2;
+}
+
+/* ── Direction text ─────────────────────────────────── */
+.wind-dir-info { flex: 1; min-width: 0; }
+
+.wind-abbr {
+  font-family: var(--disp);
+  font-size: 22px; letter-spacing: 1px; line-height: 1;
+  transition: color .4s ease;
+}
+.wind-abbr.da-terra {
+  color: #f0566a;
+  text-shadow: 0 0 32px rgba(240,86,106,.3);
+}
+.wind-abbr.da-mare {
+  color: var(--accent);
+  text-shadow: 0 0 32px rgba(0,200,240,.25);
+}
+
+.wind-deg {
+  font-family: var(--mono);
+  font-size: 8px; letter-spacing: 1.5px;
+  color: var(--text-3); margin-top: 3px;
+}
+
+.wind-from-row,
+.wind-to-row {
+  display: flex; align-items: baseline; gap: 4px;
+  margin-top: 4px;
+}
+
+.wind-from-label,
+.wind-to-label {
+  font-family: var(--mono);
+  font-size: 6px; letter-spacing: 2.5px;
+  text-transform: uppercase;
+  padding: 1px 5px;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+.wind-from-label {
+  background: rgba(240,86,106,.12);
+  color: #f0566a;
+  border: 1px solid rgba(240,86,106,.22);
+}
+
+.wind-to-label {
+  background: rgba(0,200,240,.08);
+  color: var(--accent);
+  border: 1px solid rgba(0,200,240,.18);
+}
+
+.wind-from-val,
+.wind-to-val {
+  font-family: var(--mono);
+  font-size: 9px; letter-spacing: 1.5px;
+  color: var(--text-2);
+  text-transform: uppercase;
+}
+
+/* ═══════════════════════════════════════════════════════
+   MICRO-WIDGETS — speed + weather
+   Shared design token: identical shape, different accent
+   ═══════════════════════════════════════════════════════ */
+.spd-widget,
+.wx-widget {
+  flex-shrink: 0;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 5px;
+  padding: 13px 11px 11px;
+  border-radius: var(--r-widget);
+  min-width: 64px;
+  position: relative; overflow: visible;
+  transition: border-color .3s, box-shadow .3s;
+}
+
+/* Speed widget — warm coral tint */
+.spd-widget {
+  background: rgba(240,86,106,.06);
+  border: 1px solid rgba(240,86,106,.14);
+  border-top: 1px solid rgba(240,86,106,.38);
+  border-bottom: 1px solid rgba(0,0,0,.65);
+  box-shadow: var(--shadow-widget);
+}
+.spd-widget::before {
+  content: ''; position: absolute;
+  top: -18px; right: -18px;
+  width: 50px; height: 50px; border-radius: 50%;
+  background: rgba(240,86,106,.06);
+  pointer-events: none;
+}
+
+/* Weather widget — cool ciano tint */
+.wx-widget {
+  background: rgba(0,200,240,.05);
+  border: 1px solid rgba(0,200,240,.12);
+  border-top: 1px solid rgba(0,200,240,.36);
+  border-bottom: 1px solid rgba(0,0,0,.65);
+  box-shadow: var(--shadow-widget);
+}
+.wx-widget::before {
+  content: ''; position: absolute;
+  top: -18px; right: -18px;
+  width: 50px; height: 50px; border-radius: 50%;
+  background: rgba(0,200,240,.05);
+  pointer-events: none;
+}
+
+.spd-icon,
+.wx-icon {
+  font-size: 20px; line-height: 1;
+}
+.spd-icon { filter: drop-shadow(0 0 6px rgba(240,86,106,.35)); }
+.wx-icon  { filter: drop-shadow(0 0 6px rgba(0,200,240,.30)); }
+
+.spd-val,
+.wx-temp {
+  font-family: var(--disp);
+  font-size: 26px; letter-spacing: 1px; line-height: 1;
+  color: var(--text);
+  transition: color .4s ease;
+}
+.spd-val.da-terra { color: #f0566a; text-shadow: 0 0 20px rgba(240,86,106,.3); }
+.spd-val.da-mare  { color: var(--accent); text-shadow: 0 0 20px rgba(0,200,240,.25); }
+
+.spd-unit,
+.wx-cond {
+  font-family: var(--mono);
+  font-size: 6px; letter-spacing: 1.5px;
+  color: var(--text-3); text-transform: uppercase;
+  text-align: center; line-height: 1.6; white-space: pre-line;
+}
+
+/* ═══════════════════════════════════════════════════════
+   FORECAST STRIP
+   ═══════════════════════════════════════════════════════ */
+.forecast-sep {
+  height: 1px; margin-bottom: 6px;
+  background: linear-gradient(90deg, transparent, var(--border-hi), transparent);
+}
+
+.forecast-label {
+  font-family: var(--mono);
+  font-size: 6.5px; letter-spacing: 3px;
+  color: rgba(220,235,255,.62); text-transform: uppercase;
+  margin-bottom: 5px;
+}
+
+.forecast-scroll {
+  overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none;
+}
+.forecast-scroll::-webkit-scrollbar { display: none; }
+
+.forecast-row { display: flex; gap: 7px; padding-bottom: 2px; }
+
+.fi {
+  flex-shrink: 0;
+  background: rgba(255,255,255,.03);
+  border: 1px solid rgba(255,255,255,.05);
+  border-top: 1px solid rgba(255,255,255,.16);
+  border-bottom: 1px solid rgba(0,0,0,.60);
+  border-radius: var(--r-chip);
+  padding: 7px 8px 6px;
+  text-align: center; min-width: 50px;
+  box-shadow: var(--shadow-chip);
+  transition: background .2s, border-color .2s;
+}
+.fi:hover {
+  background: rgba(255,255,255,.045);
+  border-color: rgba(255,255,255,.09);
+}
+
+.fi-time {
+  font-family: var(--mono);
+  font-size: 6.5px; letter-spacing: 1px;
+  color: var(--text-3); margin-bottom: 6px;
+}
+
+.fi-dir {
+  font-family: var(--disp);
+  font-size: 20px; letter-spacing: 1px; line-height: 1;
+  transition: color .3s;
+}
+.fi-dir.da-terra { color: #f0566a; }
+.fi-dir.da-mare  { color: var(--accent); }
+
+.fi-deg {
+  font-family: var(--mono);
+  font-size: 6.5px; letter-spacing: 1px;
+  color: var(--text-3); margin-top: 4px;
+}
+
+.fi-spd {
+  font-family: var(--disp);
+  font-size: 14px; letter-spacing: .5px; line-height: 1;
+  margin-top: 5px;
+  transition: color .3s;
+}
+.fi-spd.da-terra { color: rgba(240,86,106,.75); }
+.fi-spd.da-mare  { color: rgba(0,200,240,.75); }
+
+.fi-spd-unit {
+  font-family: var(--mono);
+  font-size: 5.5px; letter-spacing: 1px;
+  color: var(--text-3);
+  margin-left: 2px; vertical-align: middle;
+  text-transform: uppercase;
+}
+
+/* ═══════════════════════════════════════════════════════
+   WAVE CARD
+   ═══════════════════════════════════════════════════════ */
+.wave-svg svg { width: 36px; height: 28px; display: block; opacity: .75; }
+
+.wave-info { flex: 1; }
+
+.wave-height {
+  font-family: var(--disp);
+  font-size: 15px; letter-spacing: 1px; line-height: 1;
+  color: #e8fff4;
+  text-shadow:
+    0 1px 0 rgba(255,255,255,.14),
+    0 2px 0 rgba(0,0,0,.70),
+    0 4px 12px rgba(0,0,0,.35),
+    0 0 28px rgba(0,210,120,.15);
+}
+
+/* ── Mini compass (onde) ────────────────────────────── */
+.mini-compass {
+  flex-shrink: 0;
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 50% 40%, rgba(0,210,120,.06), rgba(0,0,0,.55));
+  border: 1px solid rgba(0,210,120,.12);
+  border-top: 1px solid rgba(0,210,120,.28);
+  border-bottom: 1px solid rgba(0,0,0,.72);
+  position: relative;
+  box-shadow:
+    0 1px 0 rgba(0,210,120,.18) inset,
+    0 -1px 0 rgba(0,0,0,.75) inset,
+    0 4px 10px rgba(0,0,0,.48),
+    0 12px 28px rgba(0,0,0,.36),
+    0 24px 48px rgba(0,0,0,.24);
+}
+.mc-n {
+  position: absolute; top: 3px; left: 50%; transform: translateX(-50%);
+  font-family: var(--mono); font-size: 6px; letter-spacing: .5px;
+  color: #00d278; opacity: .75; line-height: 1;
+}
+.mc-needle {
+  position: absolute; top: 50%; left: 50%;
+  width: 0; height: 0;
+  transform-origin: center center;
+  transition: transform 1.1s cubic-bezier(.34,1.56,.64,1);
+}
+
+/* Freccia DA onde (verde) */
+.mc-needle::before {
+  content: '';
+  position: absolute;
+  left: -4px; bottom: 1px;
+  width: 0; height: 0;
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  border-bottom: 18px solid #00d278;
+  filter: drop-shadow(0 0 5px rgba(0,210,120,.65));
+}
+
+/* Freccia VA onde (bianca) */
+.mc-needle::after {
+  content: '';
+  position: absolute;
+  left: -3px; top: 1px;
+  width: 0; height: 0;
+  border-left: 3px solid transparent;
+  border-right: 3px solid transparent;
+  border-top: 16px solid rgba(255,255,255,.70);
+  filter: drop-shadow(0 0 3px rgba(255,255,255,.30));
+}
+
+.mc-tip  { display: none; }
+.mc-tail { display: none; }
+.mc-dot  { position: absolute; top:50%; left:50%; width:4px; height:4px; border-radius:50%; background:#fff; box-shadow:0 0 4px rgba(255,255,255,.4); transform:translate(-50%,-50%); z-index:2; }
+
+.wave-sub {
+  font-family: var(--mono);
+  font-size: 7px; letter-spacing: 3px;
+  color: rgba(180,255,220,.35); text-transform: uppercase; margin-top: 3px;
+}
+
+.wave-data-row {
+  display: flex; align-items: center; gap: 8px;
+}
+
+.wave-data-col {
+  display: flex; flex-direction: column;
+}
+
+.wave-data-sep {
+  width: 1px; align-self: stretch;
+  background: rgba(0,210,120,.15);
+  margin: 2px 0;
+}
+
+.wave-period-row {
+  display: flex; align-items: baseline; gap: 3px;
+  margin-top: 3px;
+}
+
+.wave-period-val {
+  font-family: var(--disp);
+  font-size: 16px; letter-spacing: 1px; line-height: 1;
+  color: #e8fff4;
+  text-shadow:
+    0 1px 0 rgba(255,255,255,.12),
+    0 2px 0 rgba(0,0,0,.65),
+    0 0 20px rgba(0,210,120,.12);
+}
+
+.wave-period-unit {
+  font-family: var(--mono);
+  font-size: 7px; letter-spacing: 2px;
+  color: rgba(180,255,220,.40); text-transform: uppercase;
+}
+
+.wave-period-label {
+  font-family: var(--mono);
+  font-size: 7px; letter-spacing: 3px;
+  color: rgba(180,255,220,.55); text-transform: uppercase;
+  margin-top: 2px;
+}
+
+/* ── Marea: istogramma inline nel box Onde ─────────── */
+.tide-histo {
+  display: flex; align-items: flex-end; gap: 2px;
+  height: 14px; margin-top: 2px;
+}
+
+/* barre: altezze fisse crescenti — ordine fisico sempre uguale */
+.th-bar {
+  width: 5px; border-radius: 2px 2px 1px 1px;
+  background: rgba(0,210,120,.10);
+  border: 1px solid rgba(0,210,120,.14);
+  transition: background .5s, border-color .5s, box-shadow .5s, opacity .5s;
+  flex-shrink: 0;
+}
+.th-bar:nth-child(1) { height: 4px; }
+.th-bar:nth-child(2) { height: 8px; }
+.th-bar:nth-child(3) { height: 13px; }
+
+/* accesa piena */
+.th-bar.on {
+  background: rgba(0,210,120,.72);
+  border-color: #00d278;
+  box-shadow: 0 0 6px rgba(0,210,120,.45);
+}
+/* accesa smorzata (barra top in calante) */
+.th-bar.on-dim {
+  background: rgba(0,210,120,.36);
+  border-color: rgba(0,210,120,.55);
+  box-shadow: none;
+}
+/* hint: barra successiva lampeggia (crescente) */
+.th-bar.hint {
+  background: rgba(0,210,120,.18);
+  border-color: rgba(0,210,120,.32);
+  animation: thHint 1.8s ease-in-out infinite;
+}
+@keyframes thHint {
+  0%,100% { opacity:.4; } 60% { opacity:1; }
+}
+
+/* ── vecchi tide-seg nascosti ── */
+.tide-seg { display: none; }
+.tide-val  { display: none; }
+.tide-card { display: none; }
+
+/* ── Direzione onde ─────────────────────────────────── */
+.wave-dir-box { text-align: right; }
+
+.wave-dir-label {
+  font-family: var(--mono);
+  font-size: 7px; letter-spacing: 3px;
+  color: rgba(180,255,220,.72); text-transform: uppercase; margin-bottom: 3px;
+}
+
+.wave-dir-val {
+  font-family: var(--disp);
+  font-size: 22px; letter-spacing: 1px; line-height: 1;
+  color: #00d278;
+  text-shadow:
+    0 1px 0 rgba(255,255,255,.12),
+    0 2px 0 rgba(0,0,0,.70),
+    0 4px 14px rgba(0,0,0,.35),
+    0 0 28px rgba(0,210,120,.30);
+}
+.wave-dir-val.da-terra {
+  color: #f0566a;
+  text-shadow:
+    0 1px 0 rgba(255,255,255,.12),
+    0 2px 0 rgba(0,0,0,.70),
+    0 4px 14px rgba(0,0,0,.35),
+    0 0 28px rgba(240,86,106,.30);
+}
+.wave-dir-val.da-mare {
+  color: #00d278;
+  text-shadow:
+    0 1px 0 rgba(255,255,255,.12),
+    0 2px 0 rgba(0,0,0,.70),
+    0 4px 14px rgba(0,0,0,.35),
+    0 0 28px rgba(0,210,120,.30);
+}
+
+/* ═══════════════════════════════════════════════════════
+   WEBCAM
+   ═══════════════════════════════════════════════════════ */
+.webcam-section { margin: 0 14px 8px; }
+
+.webcam-header {
+  display: flex; align-items: center; gap: 12px; margin-bottom: 10px;
+}
+
+.webcam-label {
+  font-family: var(--mono);
+  font-size: 8px; letter-spacing: 4px;
+  color: rgba(220,235,255,.62); text-transform: uppercase;
+}
+
+.live-badge {
+  display: flex; align-items: center; gap: 5px;
+  padding: 4px 11px;
+  background: rgba(240,86,106,.09);
+  border: 1px solid rgba(240,86,106,.16);
+  border-top: 1px solid rgba(240,86,106,.36);
+  border-bottom: 1px solid rgba(0,0,0,.60);
+  border-radius: var(--r-pill);
+  font-family: var(--mono);
+  font-size: 7px; letter-spacing: 2px;
+  color: #f0566a; text-transform: uppercase;
+  box-shadow: var(--shadow-pill);
+}
+
+.live-dot {
+  width: 5px; height: 5px; border-radius: 50%;
+  background: #f0566a;
+  box-shadow: 0 0 6px rgba(240,86,106,.6);
+  animation: blink 1.6s ease-in-out infinite;
+}
+
+.vbox {
+  position: relative;
+  border-radius: 18px; overflow: hidden;
+  border: 1px solid rgba(255,255,255,.06);
+  border-top: 1px solid rgba(255,255,255,.16);
+  border-bottom: 2px solid rgba(0,0,0,.85);
+  background: #000;
+  aspect-ratio: 16/9;
+  box-shadow: var(--shadow-video);
+}
+
+.vbox iframe { width: 100%; height: 100%; border: none; display: block; }
+
+.vlabel {
+  position: absolute; top: 10px; left: 10px; z-index: 3;
+  font-family: var(--mono);
+  font-size: 6.5px; letter-spacing: 2.5px;
+  color: rgba(255,255,255,.6);
+  background: rgba(0,0,0,.5);
+  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  padding: 4px 11px; border-radius: var(--r-pill);
+  text-transform: uppercase; pointer-events: none;
+  border: 1px solid rgba(255,255,255,.06);
+}
+
+/* ═══════════════════════════════════════════════════════
+   FOOTER
+   ═══════════════════════════════════════════════════════ */
+footer {
+  text-align: center; padding: 20px 24px 0;
+  font-family: var(--mono);
+  font-size: 7px; letter-spacing: 4px;
+  color: var(--text-3); text-transform: uppercase;
+}
 </style>
 </head>
 <body>
-  <div id="app">
-    <header>
-      <div class="logo">
-        <h1>SUP</h1>
-        <div class="sub">Torre · Test Stream</div>
-      </div>
-      <div class="htag">⚠ TEST</div>
-    </header>
+<div id="app">
 
-    <div class="intro">
-      <strong>ISTRUZIONI</strong>
-      Questa pagina contiene solo lo streaming 01 attivo.
+  <header>
+    <div class="logo">
+      <h1><span class="h1-meteo">Meteo</span><span class="h1-sup">SUP</span></h1>
+      <div class="logo-spacer"></div>
+      <div class="sub">Torre Pedrera</div>
     </div>
-
-    <div class="strategy">
-      <div class="s-header">
-        <div class="s-num">01</div>
-        <div class="s-info">
-          <div class="s-name" style="color:#ff6b81">YouTube NoCookie</div>
-          <div class="s-desc">Embed ufficiale · privacy‑enhanced mode</div>
-        </div>
-        <div class="s-badge b1">official</div>
-      </div>
-      <div class="vbox">
-        <iframe src="https://www.youtube-nocookie.com/embed/1A2PUj7SS5o?autoplay=1&mute=1&playsinline=1&controls=1&rel=0&modestbranding=1&iv_load_policy=3"
-                allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
-                allowfullscreen
-                title="Streaming 01 - YouTube NoCookie"
-                referrerpolicy="no-referrer"></iframe>
-        <div class="vlabel">01 · youtube‑nocookie.com</div>
-      </div>
-      <div class="s-url">
-        <span class="k">host </span>www.youtube-nocookie.com<br>
-        <span class="k">params </span>autoplay=1 · mute=1 · playsinline=1 · modestbranding=1
-      </div>
+    <div class="header-right">
+      <div class="time-display" id="clock">--:--</div>
+      <div class="date-display" id="dateDisp">--- - ---</div>
     </div>
+  </header>
 
-    <footer>
-      Streaming 01 attivo e integrato.
-    </footer>
+  <div class="status-bar">
+    <div class="status-dot"></div>
+    <div class="status-text" id="statusText">CARICAMENTO…</div>
+    <button class="status-refresh" id="refreshBtn" onclick="refresh()" aria-label="Aggiorna">↻</button>
   </div>
+
+  <div class="wind-card">
+    <div class="card-label-row">
+      <div class="card-label">DIREZIONE VENTO</div>
+      <div class="card-label">METEO</div>
+    </div>
+    <div class="wind-main">
+
+      <!-- COLONNA SINISTRA: compass + dir + speed -->
+      <div class="wind-left-col">
+        <div class="wind-top-row">
+          <div class="compass">
+            <div class="c-n">N</div>
+            <div class="c-needle" id="needle">
+              <div class="c-tip"></div>
+              <div class="c-tail"></div>
+            </div>
+            <div class="c-dot"></div>
+          </div>
+
+          <div class="wind-dir-info">
+            <div class="wind-abbr da-terra" id="windAbbr">---</div>
+            <div class="wind-deg" id="windDeg">--- °</div>
+            <div class="wind-from-row">
+              <span class="wind-from-label">DA</span>
+              <span class="wind-from-val" id="windFrom">---</span>
+            </div>
+            <div class="wind-to-row">
+              <span class="wind-to-label">VA</span>
+              <span class="wind-to-val" id="windTo">---</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="wind-widgets-row">
+          <div class="spd-widget">
+            <div class="spd-icon">💨</div>
+            <div class="spd-val" id="windSpd">--</div>
+            <div class="spd-unit">km/h</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- COLONNA DESTRA: meteo, stessa altezza totale -->
+      <div class="wx-widget wx-side">
+        <div class="wx-current-row">
+          <div class="wx-icon" id="wxIcon">⋯</div>
+          <div class="wx-temp" id="wxTemp">--°</div>
+        </div>
+        <div class="wx-cond" id="wxCond">---</div>
+        <div class="wx-sep"></div>
+        <div class="wx-forecast" id="wxForecast">
+          <div class="wx-fi"><div class="wx-fi-h">--</div><div class="wx-fi-i">·</div></div>
+          <div class="wx-fi"><div class="wx-fi-h">--</div><div class="wx-fi-i">·</div></div>
+          <div class="wx-fi"><div class="wx-fi-h">--</div><div class="wx-fi-i">·</div></div>
+          <div class="wx-fi"><div class="wx-fi-h">--</div><div class="wx-fi-i">·</div></div>
+          <div class="wx-fi"><div class="wx-fi-h">--</div><div class="wx-fi-i">·</div></div>
+        </div>
+      </div>
+
+    </div>
+    <div class="forecast-sep"></div>
+    <div class="forecast-label">EVOLUZIONE PROSSIME ORE</div>
+    <div class="forecast-scroll">
+      <div class="forecast-row" id="forecastRow"></div>
+    </div>
+  </div>
+
+  <div class="wave-card">
+    <div class="wave-card-label">Onde</div>
+    <div class="wave-card-inner">
+    <div class="wave-svg">
+      <svg viewBox="0 0 70 38" fill="none">
+        <path stroke="#00d278" stroke-width="2" stroke-linecap="round" fill="none">
+          <animate attributeName="d" dur="2.2s" repeatCount="indefinite"
+            values="M0 19 Q8 10 16 19 Q24 28 32 19 Q40 10 48 19 Q56 28 64 19;
+                    M0 19 Q8 28 16 19 Q24 10 32 19 Q40 28 48 19 Q56 10 64 19;
+                    M0 19 Q8 10 16 19 Q24 28 32 19 Q40 10 48 19 Q56 28 64 19"/>
+        </path>
+      </svg>
+    </div>
+    <div class="wave-info">
+      <div class="wave-data-row">
+        <div class="wave-data-col">
+          <div class="wave-height" id="waveHbig">-- cm</div>
+          <div class="wave-sub">ALT.</div>
+        </div>
+        <div class="wave-data-sep"></div>
+        <div class="wave-data-col">
+          <div class="wave-period-row">
+            <div class="wave-period-val" id="wavePeriod">--</div>
+            <div class="wave-period-unit">sec</div>
+          </div>
+          <div class="wave-period-label">PERIODO</div>
+        </div>
+        <div class="wave-data-sep"></div>
+        <div class="wave-data-col">
+          <div class="tide-histo" id="tideHisto">
+            <span class="th-bar" id="thBar1"></span>
+            <span class="th-bar" id="thBar2"></span>
+            <span class="th-bar" id="thBar3"></span>
+          </div>
+          <div class="wave-period-label">~MAREA</div>
+        </div>
+        <div class="wave-data-sep"></div>
+      </div>
+    </div>
+    <!-- mini bussola direzione onde -->
+    <div class="mini-compass">
+      <div class="mc-n">N</div>
+      <div class="mc-needle" id="waveNeedle">
+        <div class="mc-tip"></div>
+        <div class="mc-tail"></div>
+      </div>
+      <div class="mc-dot"></div>
+    </div>
+    <div class="wave-dir-box">
+      <div class="wave-dir-label">DIR. ONDE</div>
+      <div class="wave-dir-val" id="waveDirVal">--</div>
+    </div>
+    </div>
+  </div>
+
+  <!-- WEBCAM: solo strategia 01 YouTube NoCookie — attributi identici all'originale -->
+  <div class="webcam-section">
+    <div class="webcam-header">
+      <div class="webcam-label">WEBCAM LIVE</div>
+      <div class="live-badge"><div class="live-dot"></div>LIVE</div>
+    </div>
+    <div class="vbox">
+      <iframe id="webcamIframe" src=""
+        allow="autoplay;encrypted-media;picture-in-picture"
+        allowfullscreen playsinline loading="lazy"
+        referrerpolicy="no-referrer"
+        title="Webcam Torre Pedrera">
+      </iframe>
+      <div class="vlabel">TORRE PEDRERA</div>
+    </div>
+  </div>
+
+  <footer>MeteoSUP · Torre Pedrera · Adriatico</footer>
+</div>
+
+<script>
+/* ── WEBCAM: src iniettato via JS (sblocca autoplay iOS/Safari) ── */
+const VID = '1A2PUj7SS5o';
+const WEBCAM_SRC = 'https://www.youtube-nocookie.com/embed/'+VID+'?autoplay=1&mute=1&playsinline=1&controls=1&rel=0&modestbranding=1&iv_load_policy=3';
+
+function initWebcam(){
+  document.getElementById('webcamIframe').src = WEBCAM_SRC;
+}
+window.addEventListener('load', initWebcam);
+
+/* ── CONFIG ─────────────────────────────── */
+const LAT = 44.07, LON = 12.62;  // Torre Pedrera, Rimini
+
+/* ── OROLOGIO ───────────────────────────── */
+const DAYS   = ['DOM','LUN','MAR','MER','GIO','VEN','SAB'];
+const MONTHS = ['GEN','FEB','MAR','APR','MAG','GIU','LUG','AGO','SET','OTT','NOV','DIC'];
+function tickClock(){
+  const n=new Date(), hh=String(n.getHours()).padStart(2,'0'), mm=String(n.getMinutes()).padStart(2,'0');
+  document.getElementById('clock').textContent=`${hh}:${mm}`;
+  document.getElementById('dateDisp').textContent=`${DAYS[n.getDay()]} ${n.getDate()} ${MONTHS[n.getMonth()]}`;
+}
+tickClock(); setInterval(tickClock,1000);
+
+/* ── HELPERS ────────────────────────────── */
+function degToCompass(d){
+  const dirs=['N','NNE','NE','ENE','E','ESE','SE','SSE','S','SSO','SO','OSO','O','ONO','NO','NNO'];
+  return dirs[Math.round(((d%360)+360)%360/22.5)%16];
+}
+
+// Torre Pedrera: costa EST sull'Adriatico. 
+// Da mare (buono) = vento da E quadrant: 30°–160°  → .da-mare (ciano)
+// Da terra        = tutto il resto        → .da-terra (corallo/rosso)
+function windClass(deg){
+  const d=((deg%360)+360)%360;
+  return (d>=30&&d<=160)?'da-mare':'da-terra';
+}
+
+function wmoInfo(c){
+  // WMO Weather Interpretation Codes — icone Meteocons SVG fill/dark
+  const I=n=>`<img src="https://cdn.jsdelivr.net/npm/meteocons@latest/public/fill/svg/${n}.svg" width="18" height="18" style="display:block">`;
+  if(c===0)              return{icon:I('clear-day'),           label:'SOLEGGIATO'};
+  if(c===1)              return{icon:I('partly-cloudy-day'),   label:'POCO\nNUVOLOSO'};
+  if(c===2)              return{icon:I('partly-cloudy-day'),   label:'PARZ.\nNUVOLOSO'};
+  if(c===3)              return{icon:I('overcast'),            label:'COPERTO'};
+  if(c>=10&&c<=19)       return{icon:I('haze-day'),            label:'FOSCHIA'};
+  if(c>=20&&c<=29)       return{icon:I('drizzle'),             label:'PREC.\nRECENTI'};
+  if(c>=30&&c<=39)       return{icon:I('wind'),                label:'BUFERA\nSABBIA'};
+  if(c>=40&&c<=49)       return{icon:I('fog'),                 label:'NEBBIA'};
+  if(c===51||c===53)     return{icon:I('drizzle'),             label:'PIOVIGG.\nLEGGERA'};
+  if(c===55)             return{icon:I('drizzle'),             label:'PIOVIGG.\nINTENSA'};
+  if(c===56||c===57)     return{icon:I('sleet'),               label:'PIOVIGG.\nGELATA'};
+  if(c===61||c===63)     return{icon:I('rain'),                label:'PIOGGIA'};
+  if(c===65)             return{icon:I('rain'),                label:'PIOGGIA\nINTENSA'};
+  if(c===66||c===67)     return{icon:I('sleet'),               label:'PIOGGIA\nGELATA'};
+  if(c===71||c===73)     return{icon:I('snow'),                label:'NEVE'};
+  if(c===75)             return{icon:I('snow'),                label:'NEVE\nINTENSA'};
+  if(c===77)             return{icon:I('sleet'),               label:'NEVISCHIO'};
+  if(c===80||c===81)     return{icon:I('rain'),                label:'ROVESCI'};
+  if(c===82)             return{icon:I('thunderstorms-rain'),  label:'ROVESCI\nINTENSI'};
+  if(c===85||c===86)     return{icon:I('snow'),                label:'ROVESCI\nNEVE'};
+  if(c===95)             return{icon:I('thunderstorms'),       label:'TEMPORALE'};
+  if(c===96||c===99)     return{icon:I('thunderstorms-snow'),  label:'TEMPORA.\nGRANDINE'};
+  return                        {icon:I('not-available'),      label:'N/D'};
+}
+
+/* ══════════════════════════════════════════════════════
+   MAREA — istogramma nel box Onde
+   Modello semidiurno con fase lunare + bathymetry
+   Torre Pedrera · stima qualitativa locale
+   ══════════════════════════════════════════════════════ */
+function loadTideEstimate(){
+  /* ── Parametri fisici locali ── */
+  const TIDE_PERIOD = 12.42;
+  const AMP_MIN     = 0.08;
+  const AMP_MAX     = 0.32;
+  const PHASE_SHIFT = 0.9;
+  const DEPTH       = 2.2;
+  const BATH_DAMP   = 0.92;
+  const OMEGA       = 2 * Math.PI / TIDE_PERIOD;
+
+  /* ── Fase lunare ── */
+  const LUNAR_EPOCH  = new Date('2000-01-06T18:14:00Z');
+  const LUNAR_PERIOD = 29.53058867;
+  const now          = new Date();
+  const lunarAge     = ((now - LUNAR_EPOCH) / 86400000 % LUNAR_PERIOD + LUNAR_PERIOD) % LUNAR_PERIOD;
+  const syzygyIdx    = 0.5 + 0.5 * Math.cos(4 * Math.PI * lunarAge / LUNAR_PERIOD);
+
+  /* ── Ampiezza + bathymetry ── */
+  const amplitude  = AMP_MIN + (AMP_MAX - AMP_MIN) * syzygyIdx;
+  const bathFactor = BATH_DAMP * Math.pow(DEPTH / 10, 0.25);
+  const A          = amplitude * bathFactor;
+
+  /* ── h(t) in cm ── */
+  function h(date){
+    return A * Math.sin(OMEGA * date.getTime() / 3600000 + PHASE_SHIFT) * 100;
+  }
+
+  /* ── Tendenza via derivata numerica ± 10 min ── */
+  const dh = h(new Date(now.getTime() + 10*60000)) - h(new Date(now.getTime() - 10*60000));
+  const rising  = dh >  0.4;
+  const falling = dh < -0.4;
+
+  /* ── Livello normalizzato 0..1 ── */
+  const hNow = h(now);
+  const norm = (hNow / (A * 100) + 1) / 2;
+
+  /* activeBars: quante barre accese (1=bassa, 2=media, 3=alta) */
+  const activeBars = norm < 0.33 ? 1 : norm < 0.67 ? 2 : 3;
+
+  /* ── Istogramma: ordine barre
+     CRESCENTE  → piccola→grande (sx=piccola, dx=grande)
+     CALANTE    → grande→piccola (sx=grande, dx=piccola)
+     STABILE    → piccola→grande (default crescente)
+  ── */
+  const histo = document.getElementById('tideHisto');
+  if (!histo) return;
+
+  const bars = [
+    document.getElementById('thBar1'),
+    document.getElementById('thBar2'),
+    document.getElementById('thBar3'),
+  ];
+  if (bars.some(b => !b)) return;
+
+  /* Ordine visivo: se calante inverti le altezze CSS */
+  if (falling) {
+    bars[0].style.height = '13px';
+    bars[1].style.height = '8px';
+    bars[2].style.height = '4px';
+  } else {
+    bars[0].style.height = '4px';
+    bars[1].style.height = '8px';
+    bars[2].style.height = '13px';
+  }
+
+  /* Assegna classi */
+  bars.forEach((b, i) => {
+    b.className = 'th-bar';
+    const pos = i + 1; // 1-indexed
+
+    if (falling) {
+      /* calante: barre ordinate grande→piccola
+         pos 1 = barra grande, pos 3 = barra piccola
+         accendiamo le prime activeBars */
+      if (pos < activeBars)        b.classList.add('on');
+      else if (pos === activeBars) b.classList.add('on-dim'); // top smorzata
+    } else {
+      /* crescente/stabile: piccola→grande
+         accendiamo le prime activeBars */
+      if (pos < activeBars)        b.classList.add('on');
+      else if (pos === activeBars) b.classList.add(rising ? 'on' : 'on');
+      /* hint sulla barra successiva se crescente */
+      if (rising && pos === activeBars + 1) b.classList.add('hint');
+    }
+  });
+}
+
+loadTideEstimate();
+setInterval(loadTideEstimate, 5*60*1000);
+
+/* ── LOADING STATE ─────────────────────────── */
+const LOADING_IDS = ['windAbbr','windDeg','windSpd','windFrom','windTo','waveHbig','wavePeriod','waveDirVal','wxIcon','wxTemp','wxCond'];
+function setLoading(on){
+  LOADING_IDS.forEach(id=>{
+    const el=document.getElementById(id);
+    if(el) on ? el.classList.add('loading') : el.classList.remove('loading');
+  });
+  document.getElementById('forecastRow').style.opacity = on ? '.35' : '1';
+}
+
+/* ── LOAD ───────────────────────────────── */
+async function loadAll(){
+  setLoading(true);
+  try{
+    const [mRes,wRes,xRes]=await Promise.all([
+      fetch(`https://marine-api.open-meteo.com/v1/marine?latitude=${LAT}&longitude=${LON}&current=wave_height,wave_direction,wave_period&timezone=Europe/Rome`),
+      fetch(`https://api.open-meteo.com/v1/forecast?latitude=${LAT}&longitude=${LON}&current=winddirection_10m,windspeed_10m&hourly=winddirection_10m,windspeed_10m&wind_speed_unit=kmh&timezone=Europe/Rome&forecast_days=2`),
+      fetch(`https://api.open-meteo.com/v1/forecast?latitude=${LAT}&longitude=${LON}&current=temperature_2m,weathercode&hourly=weathercode&timezone=Europe/Rome&forecast_days=2`)
+    ]);
+    const [marine,wind,wx]=await Promise.all([mRes.json(),wRes.json(),xRes.json()]);
+
+    /* vento */
+    const wDeg=Math.round(wind.current.winddirection_10m);
+    const wSpd=Math.round(wind.current.windspeed_10m);
+    document.getElementById('windSpd').textContent=wSpd;
+    document.getElementById('windSpd').className='spd-val '+windClass(wDeg);
+    document.getElementById('windAbbr').textContent=degToCompass(wDeg);
+    document.getElementById('windAbbr').className='wind-abbr '+windClass(wDeg);
+    document.getElementById('windDeg').textContent=`${wDeg} °`;
+    document.getElementById('needle').style.transform=`rotate(${wDeg}deg)`;
+    // DA = direzione di provenienza (dato meteo), VA = opposto (dove il vento si dirige)
+    const oppositeDir = (wDeg + 180) % 360;
+    document.getElementById('windFrom').textContent = degToCompass(wDeg) + '  ' + wDeg + '°';
+    document.getElementById('windTo').textContent   = degToCompass(oppositeDir) + '  ' + oppositeDir + '°';
+
+    /* onde */
+    if(marine?.current){
+      const wcm=Math.round(marine.current.wave_height*100);
+      const waveDir=marine.current.wave_direction;
+      const wavePer=marine.current.wave_period!=null ? Math.round(marine.current.wave_period*10)/10 : '--';
+      document.getElementById('waveHbig').textContent=wcm+' cm';
+      document.getElementById('waveDirVal').textContent=degToCompass(waveDir);
+      document.getElementById('waveDirVal').className='wave-dir-val '+windClass(waveDir);
+      document.getElementById('waveNeedle').style.transform=`rotate(${waveDir}deg)`;
+      document.getElementById('wavePeriod').textContent=wavePer;
+    }
+
+    /* meteo */
+    const{icon,label}=wmoInfo(wx.current.weathercode);
+    document.getElementById('wxIcon').innerHTML=icon;
+    document.getElementById('wxTemp').textContent=Math.round(wx.current.temperature_2m)+'°';
+    document.getElementById('wxCond').textContent=label;
+
+    /* meteo forecast biorario */
+    const now=new Date();
+    if(wx.hourly?.time && wx.hourly?.weathercode){
+      const wxTimes=wx.hourly.time, wxCodes=wx.hourly.weathercode;
+      const fcast=document.getElementById('wxForecast');
+      let wxStartIdx=wxTimes.findIndex(s=>new Date(s)>now);
+      if(wxStartIdx<0) wxStartIdx=0;
+      fcast.innerHTML='';
+      for(let step=0;step<5;step++){
+        const i=wxStartIdx+(step*2);
+        if(i>=wxTimes.length) break;
+        const t=new Date(wxTimes[i]);
+        const hh=String(t.getHours()).padStart(2,'0');
+        const ico=wmoInfo(wxCodes[i]).icon;
+        const div=document.createElement('div');
+        div.className='wx-fi';
+        div.innerHTML=`<div class="wx-fi-h">${hh}</div><div class="wx-fi-i">${ico}</div>`;
+        fcast.appendChild(div);
+      }
+    }
+
+    /* forecast */
+    const times=wind.hourly.time, wdirs=wind.hourly.winddirection_10m, wspds=wind.hourly.windspeed_10m;
+    const row=document.getElementById('forecastRow');
+    row.innerHTML=''; let cnt=0;
+    for(let i=0;i<times.length&&cnt<8;i++){
+      const t=new Date(times[i]);
+      if(t>now){
+        const el=document.createElement('div');
+        el.className='fi';
+        el.innerHTML=`<div class="fi-time">${String(t.getHours()).padStart(2,'0')}:00</div><div class="fi-dir ${windClass(wdirs[i])}">${degToCompass(wdirs[i])}</div><div class="fi-deg">${Math.round(wdirs[i])}°</div><div class="fi-spd ${windClass(wdirs[i])}">${Math.round(wspds[i])}<span class="fi-spd-unit">km/h</span></div>`;
+        row.appendChild(el); cnt++;
+      }
+    }
+
+    /* status */
+    const n=new Date();
+    document.getElementById('statusText').textContent=`AGGIORNATO · ${String(n.getHours()).padStart(2,'0')}:${String(n.getMinutes()).padStart(2,'0')}`;
+    document.querySelector('.status-dot').classList.remove('error');
+    setLoading(false);
+  }catch(e){
+    console.error(e);
+    document.getElementById('statusText').textContent='ERRORE CONNESSIONE';
+    document.querySelector('.status-dot').classList.add('error');
+    setLoading(false);
+  }
+}
+
+function refresh(){
+  const btn=document.getElementById('refreshBtn');
+  btn.classList.add('spin');
+  loadAll().finally(()=>btn.classList.remove('spin'));
+}
+
+loadAll();
+setInterval(loadAll,5*60*1000);
+</script>
 </body>
 </html>
