@@ -558,6 +558,18 @@ header {
 .wave-dir-label { font-family: var(--mono); font-size: 7px; letter-spacing: 3px; color: rgba(180,255,220,.72); text-transform: uppercase; margin-bottom: 3px; }
 .wave-dir-val { font-family: var(--disp); font-size: 22px; letter-spacing: 1px; line-height: 1; color: #00d278; text-shadow: 0 1px 0 rgba(255,255,255,.12), 0 2px 0 rgba(0,0,0,.70), 0 4px 14px rgba(0,0,0,.35), 0 0 28px rgba(0,210,120,.30); }
 .wave-dir-val.da-terra { color: #f0566a; text-shadow: 0 1px 0 rgba(255,255,255,.12), 0 2px 0 rgba(0,0,0,.70), 0 4px 14px rgba(0,0,0,.35), 0 0 28px rgba(240,86,106,.30); }
+
+.wave-source-label {
+  font-family: var(--mono);
+  font-size: 7px; letter-spacing: 1.5px;
+  color: var(--text-3);
+  margin-top: 4px;
+  text-transform: uppercase;
+}
+.wave-source-label.buoy {
+  color: #4cdb9a;
+  text-shadow: 0 0 8px rgba(76,219,154,.35);
+}
 .wave-dir-val.da-mare  { color: #00d278; text-shadow: 0 1px 0 rgba(255,255,255,.12), 0 2px 0 rgba(0,0,0,.70), 0 4px 14px rgba(0,0,0,.35), 0 0 28px rgba(0,210,120,.30); }
 .wave-dir-val.neutral  { color: var(--text-2); text-shadow: none; }
 
@@ -942,6 +954,7 @@ footer {
       <div class="wave-dir-box">
         <div class="wave-dir-label">DIR. ONDE</div>
         <div class="wave-dir-val neutral" id="waveDirVal">--</div>
+        <div class="wave-source-label" id="waveSource"></div>
       </div>
     </div>
   </div>
@@ -1605,6 +1618,107 @@ function setLoading(on){
 }
 
 /* ══════════════════════════════════════════════════════════
+   WAVE SOURCE ROUTER
+   Sceglie la fonte dati onde più idonea in base alle coordinate.
+   Priorità: boa reale (EMODnet) → modello locale → Open-Meteo fallback
+   ══════════════════════════════════════════════════════════ */
+const WaveRouter = {
+
+  /* ── Regioni geografiche ─────────────────────────────── */
+  _regions: [
+    { name:'Adriatico / Mediterraneo',   latMin:30, latMax:48, lonMin:12, lonMax:37 },
+    { name:'Atlantico Nord-Est / Europa', latMin:35, latMax:72, lonMin:-25, lonMax:12 },
+    { name:'Mar Baltico',                 latMin:53, latMax:66, lonMin:10, lonMax:31 },
+    { name:'Mar Nero',                    latMin:40, latMax:48, lonMin:27, lonMax:42 },
+    { name:'Oceano Indiano',              latMin:-45,latMax:30, lonMin:30, lonMax:110 },
+    { name:'Pacifico',                    latMin:-60,latMax:65, lonMin:110,lonMax:180 },
+    { name:'Pacifico Est',                latMin:-60,latMax:65, lonMin:-180,lonMax:-70 },
+    { name:'Americhe / Atlantico Ovest',  latMin:-55,latMax:65, lonMin:-80, lonMax:-25 },
+  ],
+
+  _inRegion(lat, lon, r) {
+    return lat >= r.latMin && lat <= r.latMax && lon >= r.lonMin && lon <= r.lonMax;
+  },
+
+  /* ── Cerca boa EMODnet più vicina (raggio 150 km) ───── */
+  async _emodnetNearest(lat, lon) {
+    try {
+      // EMODnet Physics — stazioni con wave_height, raggio 1.5°
+      const bbox = `${lon-1.5},${lat-1.5},${lon+1.5},${lat+1.5}`;
+      const url  = `https://erddap.emodnet-physics.eu/erddap/tabledap/EP_ERD_INT_WAVE_NRT.json`
+                 + `?time,latitude,longitude,VZMX,VTPK,VDIR`
+                 + `&time>=${new Date(Date.now()-3*3600000).toISOString().slice(0,19)}Z`
+                 + `&latitude>=${lat-1.5}&latitude<=${lat+1.5}`
+                 + `&longitude>=${lon-1.5}&longitude<=${lon+1.5}`
+                 + `&orderByMax("time")`;
+      const r = await fetch(url, { signal: AbortSignal.timeout(6000) });
+      if (!r.ok) return null;
+      const data = await r.json();
+      if (!data?.table?.rows?.length) return null;
+
+      // Trova la boa più vicina con dati validi
+      const cols = data.table.columnNames;
+      const iLat = cols.indexOf('latitude'), iLon = cols.indexOf('longitude');
+      const iH   = cols.indexOf('VZMX'),     iP   = cols.indexOf('VTPK');
+      const iD   = cols.indexOf('VDIR');
+
+      let best = null, bestDist = Infinity;
+      for (const row of data.table.rows) {
+        if (row[iH] == null) continue;
+        const dlat = row[iLat] - lat, dlon = row[iLon] - lon;
+        const dist = Math.sqrt(dlat*dlat + dlon*dlon);
+        if (dist < bestDist) { bestDist = dist; best = row; }
+      }
+      if (!best) return null;
+      const distKm = bestDist * 111;
+      if (distKm > 150) return null;
+
+      return {
+        wave_height:    best[iH],
+        wave_period:    best[iP],
+        wave_direction: best[iD],
+        source: `BOA REALE · ${Math.round(distKm)} km`,
+        sourceKey: 'buoy'
+      };
+    } catch(_) { return null; }
+  },
+
+  /* ── Open-Meteo Marine (fallback universale) ─────────── */
+  async _openMeteo(lat, lon) {
+    try {
+      const r = await fetch(
+        `https://marine-api.open-meteo.com/v1/marine?latitude=${lat}&longitude=${lon}`
+        + `&current=wave_height,wave_direction,wave_period&timezone=auto`,
+        { signal: AbortSignal.timeout(8000) }
+      );
+      if (!r.ok) return null;
+      const data = await r.json();
+      if (!data?.current || data.current.wave_height == null) return null;
+      return {
+        wave_height:    data.current.wave_height,
+        wave_period:    data.current.wave_period,
+        wave_direction: data.current.wave_direction,
+        source: 'MODELLO · Open-Meteo',
+        sourceKey: 'model'
+      };
+    } catch(_) { return null; }
+  },
+
+  /* ── Entry point ─────────────────────────────────────── */
+  async fetch(lat, lon) {
+    // 1. Prova boa reale EMODnet (zone coperte: Europa, Mediterraneo, globale)
+    const buoy = await this._emodnetNearest(lat, lon);
+    if (buoy) return buoy;
+
+    // 2. Fallback: modello Open-Meteo (copertura globale)
+    const model = await this._openMeteo(lat, lon);
+    if (model) return model;
+
+    return null;
+  }
+};
+
+/* ══════════════════════════════════════════════════════════
    LOAD ALL — usa AppState.location per le coordinate
    ══════════════════════════════════════════════════════════ */
 async function loadAll(){
@@ -1617,12 +1731,12 @@ async function loadAll(){
 
   setLoading(true);
   try {
-    const [mRes, wRes, xRes] = await Promise.all([
-      fetch(`https://marine-api.open-meteo.com/v1/marine?latitude=${lat}&longitude=${lon}&current=wave_height,wave_direction,wave_period&timezone=auto`),
+    const [waveData, wRes, xRes] = await Promise.all([
+      WaveRouter.fetch(lat, lon),
       fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=winddirection_10m,windspeed_10m&hourly=winddirection_10m,windspeed_10m&wind_speed_unit=kmh&timezone=auto&forecast_days=2`),
       fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,weathercode&hourly=weathercode&timezone=auto&forecast_days=2`)
     ]);
-    const [marine, wind, wx] = await Promise.all([mRes.json(), wRes.json(), xRes.json()]);
+    const [wind, wx] = await Promise.all([wRes.json(), xRes.json()]);
 
     /* ── Vento ── */
     const wDeg = Math.round(wind.current.winddirection_10m);
@@ -1642,16 +1756,22 @@ async function loadAll(){
     document.getElementById('windToLabel').textContent   = 'VA';
 
     /* ── Onde ── */
-    if (marine?.current && marine.current.wave_height != null) {
+    if (waveData && waveData.wave_height != null) {
       document.querySelector('.wave-card').style.display = '';
-      const wcm     = Math.round(marine.current.wave_height * 100);
-      const waveDir = marine.current.wave_direction;
-      const wavePer = marine.current.wave_period != null ? Math.round(marine.current.wave_period * 10) / 10 : '--';
+      const wcm     = Math.round(waveData.wave_height * 100);
+      const waveDir = waveData.wave_direction;
+      const wavePer = waveData.wave_period != null ? Math.round(waveData.wave_period * 10) / 10 : '--';
       document.getElementById('waveHbig').textContent      = wcm + ' cm';
       document.getElementById('waveDirVal').textContent    = degToCompass(waveDir);
       document.getElementById('waveDirVal').className      = 'wave-dir-val ' + windClass(waveDir);
       document.getElementById('waveNeedle').style.transform = `rotate(${waveDir}deg)`;
       document.getElementById('wavePeriod').textContent    = wavePer;
+      // Mostra la fonte dati
+      const srcEl = document.getElementById('waveSource');
+      if (srcEl) {
+        srcEl.textContent  = waveData.source || '';
+        srcEl.className    = 'wave-source-label' + (waveData.sourceKey === 'buoy' ? ' buoy' : '');
+      }
     } else {
       document.querySelector('.wave-card').style.display = 'none';
     }
