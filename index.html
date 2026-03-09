@@ -547,6 +547,7 @@ header {
 .tide-histo { display: flex; align-items: flex-end; gap: 2px; height: 14px; margin-top: 2px; }
 .th-bar { width: 5px; border-radius: 2px 2px 1px 1px; background: rgba(0,210,120,.10); border: 1px solid rgba(0,210,120,.14); transition: background .5s, border-color .5s, box-shadow .5s, opacity .5s; flex-shrink: 0; }
 .th-bar:nth-child(1) { height: 4px; } .th-bar:nth-child(2) { height: 8px; } .th-bar:nth-child(3) { height: 13px; }
+/* heights overridden by JS — do not rely on nth-child alone */
 .th-bar.on { background: rgba(0,210,120,.72); border-color: #00d278; box-shadow: 0 0 6px rgba(0,210,120,.45); }
 .th-bar.on-dim { background: rgba(0,210,120,.36); border-color: rgba(0,210,120,.55); box-shadow: none; }
 .th-bar.hint { background: rgba(0,210,120,.18); border-color: rgba(0,210,120,.32); animation: thHint 1.8s ease-in-out infinite; }
@@ -942,6 +943,7 @@ footer {
               <span class="th-bar" id="thBar3"></span>
             </div>
             <div class="wave-period-label">~MAREA</div>
+            <div class="wave-source-label" id="tideZoneLabel" style="margin-top:2px"></div>
           </div>
           <div class="wave-data-sep"></div>
         </div>
@@ -1290,42 +1292,121 @@ function wmoInfo(c){
 }
 
 /* ══════════════════════════════════════════════════════════
-   MAREA
+   MAREA — modello semidiurno adattivo per zona
+   Fase lunare · parametri regionali · correzione fondale
    ══════════════════════════════════════════════════════════ */
-function loadTideEstimate(){
-  const TIDE_PERIOD = 12.42;
-  const AMP_MIN = 0.08, AMP_MAX = 0.32, PHASE_SHIFT = 0.9, DEPTH = 2.2, BATH_DAMP = 0.92;
-  const OMEGA = 2 * Math.PI / TIDE_PERIOD;
-  const LUNAR_EPOCH = new Date('2000-01-06T18:14:00Z');
-  const LUNAR_PERIOD = 29.53058867;
-  const now = new Date();
-  const lunarAge = ((now - LUNAR_EPOCH) / 86400000 % LUNAR_PERIOD + LUNAR_PERIOD) % LUNAR_PERIOD;
-  const syzygyIdx = 0.5 + 0.5 * Math.cos(4 * Math.PI * lunarAge / LUNAR_PERIOD);
-  const amplitude = AMP_MIN + (AMP_MAX - AMP_MIN) * syzygyIdx;
-  const A = BATH_DAMP * Math.pow(DEPTH / 10, 0.25) * amplitude;
-  function h(date){ return A * Math.sin(OMEGA * date.getTime() / 3600000 + PHASE_SHIFT) * 100; }
-  const dh = h(new Date(now.getTime() + 10*60000)) - h(new Date(now.getTime() - 10*60000));
-  const rising = dh > 0.4, falling = dh < -0.4;
-  const norm = (h(now) / (A * 100) + 1) / 2;
-  const activeBars = norm < 0.33 ? 1 : norm < 0.67 ? 2 : 3;
+
+/* ── Parametri regionali ─────────────────────────────────
+   amp_min/max in metri · phase_shift in radianti
+   depth_ref: profondità tipica costiera locale in metri
+   bath_exp:  esponente shoaling (0.25 acque basse, 0.1 oceano)
+   M2_period: periodo principale in ore (12.42 semidiurno,
+              alcuni mari hanno componente diurna dominante)
+   ─────────────────────────────────────────────────────── */
+const TIDE_ZONES = [
+  // Adriatico
+  { name:'Adriatico Nord',   latMin:43.5,latMax:46,  lonMin:12,lonMax:14,   amp_min:.08, amp_max:.55, phase:.9,  depth_ref:5,  bath_exp:.25, period:12.42 },
+  { name:'Adriatico Centro', latMin:41,  latMax:43.5,lonMin:13,lonMax:15.5, amp_min:.05, amp_max:.30, phase:1.1, depth_ref:8,  bath_exp:.22, period:12.42 },
+  { name:'Adriatico Sud',    latMin:38,  latMax:41,  lonMin:15,lonMax:20,   amp_min:.03, amp_max:.20, phase:1.3, depth_ref:12, bath_exp:.18, period:12.42 },
+  // Mediterraneo
+  { name:'Tirreno',          latMin:37,  latMax:44,  lonMin:9, lonMax:16,   amp_min:.02, amp_max:.15, phase:2.1, depth_ref:15, bath_exp:.15, period:12.42 },
+  { name:'Ligure / Provenza',latMin:42,  latMax:45,  lonMin:5, lonMax:10,   amp_min:.05, amp_max:.25, phase:1.8, depth_ref:10, bath_exp:.18, period:12.42 },
+  { name:'Egeo / Ionio',     latMin:34,  latMax:42,  lonMin:20,lonMax:30,   amp_min:.02, amp_max:.12, phase:2.4, depth_ref:20, bath_exp:.12, period:12.42 },
+  { name:'Atlantico NE',     latMin:35,  latMax:60,  lonMin:-12,lonMax:5,   amp_min:.4,  amp_max:4.5, phase:-.5, depth_ref:8,  bath_exp:.28, period:12.42 },
+  { name:'Manica / Nord Europa',latMin:49,latMax:58, lonMin:-5,lonMax:9,    amp_min:.5,  amp_max:6.0, phase:-.8, depth_ref:6,  bath_exp:.30, period:12.42 },
+  { name:'Mar Baltico',      latMin:53,  latMax:66,  lonMin:10,lonMax:31,   amp_min:.01, amp_max:.06, phase:0,   depth_ref:10, bath_exp:.08, period:24.0  },
+  { name:'Mar Nero',         latMin:40,  latMax:48,  lonMin:27,lonMax:42,   amp_min:.01, amp_max:.10, phase:.5,  depth_ref:15, bath_exp:.10, period:12.42 },
+  { name:'Oceano Indiano',   latMin:-45, latMax:30,  lonMin:30,lonMax:110,  amp_min:.3,  amp_max:2.5, phase:1.2, depth_ref:10, bath_exp:.25, period:12.42 },
+  { name:'Pacifico NW',      latMin:20,  latMax:60,  lonMin:110,lonMax:180, amp_min:.2,  amp_max:3.0, phase:.8,  depth_ref:8,  bath_exp:.25, period:12.42 },
+  { name:'Pacifico NE',      latMin:20,  latMax:60,  lonMin:-180,lonMax:-100,amp_min:.3, amp_max:4.0, phase:.6,  depth_ref:8,  bath_exp:.25, period:12.42 },
+  { name:'Atlantico Ovest',  latMin:-55, latMax:65,  lonMin:-80,lonMax:-25, amp_min:.3,  amp_max:3.0, phase:.4,  depth_ref:10, bath_exp:.25, period:12.42 },
+  // Fallback globale
+  { name:'Globale',          latMin:-90, latMax:90,  lonMin:-180,lonMax:180,amp_min:.1,  amp_max:1.0, phase:1.0, depth_ref:10, bath_exp:.20, period:12.42 },
+];
+
+function getTideZone(lat, lon) {
+  // Cerca zona più specifica (le ultime hanno priorità inferiore)
+  for (let i = 0; i < TIDE_ZONES.length - 1; i++) {
+    const z = TIDE_ZONES[i];
+    if (lat >= z.latMin && lat <= z.latMax && lon >= z.lonMin && lon <= z.lonMax) return z;
+  }
+  return TIDE_ZONES[TIDE_ZONES.length - 1]; // fallback globale
+}
+
+function loadTideEstimate() {
   const histo = document.getElementById('tideHisto');
   if (!histo) return;
-  const bars = [document.getElementById('thBar1'), document.getElementById('thBar2'), document.getElementById('thBar3')];
+  const bars = [
+    document.getElementById('thBar1'),
+    document.getElementById('thBar2'),
+    document.getElementById('thBar3'),
+  ];
   if (bars.some(b => !b)) return;
-  if (falling) { bars[0].style.height='13px'; bars[1].style.height='8px'; bars[2].style.height='4px'; }
-  else         { bars[0].style.height='4px';  bars[1].style.height='8px'; bars[2].style.height='13px'; }
+
+  /* ── Zona e parametri ── */
+  const lat = AppState.location?.lat ?? 44.15;
+  const lon = AppState.location?.lon ?? 12.46;
+  const Z   = getTideZone(lat, lon);
+
+  /* ── Fase lunare ── */
+  const LUNAR_EPOCH  = new Date('2000-01-06T18:14:00Z');
+  const LUNAR_PERIOD = 29.53058867;
+  const now          = new Date();
+  const lunarAge     = ((now - LUNAR_EPOCH) / 86400000 % LUNAR_PERIOD + LUNAR_PERIOD) % LUNAR_PERIOD;
+  // syzygy (luna piena/nuova) → marea più alta
+  const syzygyIdx    = 0.5 + 0.5 * Math.cos(4 * Math.PI * lunarAge / LUNAR_PERIOD);
+
+  /* ── Ampiezza con correzione batimetrica fondale ──────
+     Shoaling: A_costa = A_largo * (d_ref / d_effettiva)^bath_exp
+     Qui usiamo d_ref come profondità costiera tipica della zona.
+     Più bassa è l'acqua, più l'onda di marea si amplifica.
+  ── */
+  const A_largo  = Z.amp_min + (Z.amp_max - Z.amp_min) * syzygyIdx;
+  // Fattore batimetrico: rapporto fondale ref / 10m (mare aperto standard)
+  const bath_factor = Math.pow(Z.depth_ref / 10, -Z.bath_exp); // >1 se fondale < 10m
+  const A        = A_largo * bath_factor;
+
+  /* ── h(t) in cm ── */
+  const OMEGA = 2 * Math.PI / Z.period;
+  function h(date) {
+    return A * Math.sin(OMEGA * date.getTime() / 3600000 + Z.phase) * 100;
+  }
+
+  /* ── Tendenza via derivata numerica ± 10 min ── */
+  const dh      = h(new Date(now.getTime() + 10*60000)) - h(new Date(now.getTime() - 10*60000));
+  const rising  = dh >  0.4;
+  const falling = dh < -0.4;
+
+  /* ── Livello normalizzato 0..1 ── */
+  const hNow     = h(now);
+  const norm     = Math.max(0, Math.min(1, (hNow / (A * 100) + 1) / 2));
+  const activeBars = norm < 0.34 ? 1 : norm < 0.67 ? 2 : 3;
+
+  /* ── Altezze barre: SEMPRE impostate esplicitamente ──
+     crescente/stabile → piccola→grande (sx=bassa, dx=alta)
+     calante           → grande→piccola (sx=alta, dx=bassa)
+  ── */
+  const heights = falling
+    ? ['13px', '8px', '4px']
+    : ['4px',  '8px', '13px'];
+  bars.forEach((b, i) => { b.style.height = heights[i]; });
+
+  /* ── Classi colore ── */
   bars.forEach((b, i) => {
     b.className = 'th-bar';
-    const pos = i + 1;
+    const pos = i + 1; // 1-indexed, segue ordine visivo
     if (falling) {
-      if (pos < activeBars) b.classList.add('on');
+      if (pos < activeBars)        b.classList.add('on');
       else if (pos === activeBars) b.classList.add('on-dim');
     } else {
-      if (pos < activeBars) b.classList.add('on');
-      else if (pos === activeBars) b.classList.add('on');
+      if (pos <= activeBars)       b.classList.add('on');
       if (rising && pos === activeBars + 1) b.classList.add('hint');
     }
   });
+
+  /* ── Aggiorna tooltip zona (se esiste elemento) ── */
+  const zoneEl = document.getElementById('tideZoneLabel');
+  if (zoneEl) zoneEl.textContent = Z.name.toUpperCase();
 }
 loadTideEstimate();
 setInterval(loadTideEstimate, 5*60*1000);
