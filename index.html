@@ -4,8 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>MeteoSUP</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%23070912'/><text y='24' x='4' font-size='22'>🏄</text></svg>">
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400&family=Bebas+Neue&family=Barlow+Condensed:wght@600;700&display=swap" rel="stylesheet">
 <style>
 /* ═══════════════════════════════════════════════════════
@@ -1322,9 +1324,11 @@ const Photon = {
   _timer: null,
 
   async search(q) {
+    if (!q || q.trim().length < 3) return [];
     const r = await fetch(
-      `https://photon.komoot.io/api/?q=${encodeURIComponent(q)}&limit=6&lang=it`
+      `https://photon.komoot.io/api/?q=${encodeURIComponent(q.trim())}&limit=6&lang=default`
     );
+    if (!r.ok) throw new Error(`Photon ${r.status}`);
     const data = await r.json();
     return this._normalize(data.features || []);
   },
@@ -1424,8 +1428,10 @@ const SetupPanel = {
     document.getElementById('searchResults').innerHTML =
       `<div class="sp-loading-item">RICERCA IN CORSO…</div>`;
     this._searchTimer = setTimeout(async () => {
+      const current = document.getElementById('searchInput').value.trim();
+      if (current.length < 3) return;
       try {
-        const results = await Photon.search(val);
+        const results = await Photon.search(current);
         this._renderResults(results);
       } catch(e) {
         document.getElementById('searchResults').innerHTML =
@@ -1727,7 +1733,6 @@ function refresh(){
 
   if (hasCache) {
     loadAll();
-    setInterval(loadAll, 5 * 60 * 1000);
   } else {
     document.getElementById('statusText').textContent = 'CONFIGURA UNA POSIZIONE';
     setTimeout(() => SetupPanel.open(), 700);
