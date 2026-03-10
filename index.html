@@ -642,7 +642,7 @@ const HypeRate = (function(){
 
   function connect(sessionId) {
     if (_ws) disconnect();
-    _sessionId = sessionId.trim().toLowerCase();
+    _sessionId = sessionId.trim();
     localStorage.setItem(KEY, _sessionId);
 
     setStatus('Connessione a HypeRate…', 'connecting');
